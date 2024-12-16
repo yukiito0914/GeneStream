@@ -1,5 +1,5 @@
 # GeneStream
-This Shiny application provides an integrated workflow for analyzing and visualizing high-throughput gene expression data. It includes multiple tabs for:
+This Shiny application, **GeneStream**, provides an integrated workflow for analyzing and visualizing high-throughput gene expression data. It includes multiple tabs for:
 1. Samples: Examine sample metadata, view summary statistics, tables, and histograms to understand the distribution of sample-related variables.
 2. Counts: Load and filter normalized count matrices by variance and non-zero criteria, then visualize the effects through diagnostic plots, clustered heatmaps, and PCA.
 3. Differential Expression Analysis: Upload DE results (e.g., from DESeq2), visualize them in sortable tables, and generate volcano plots to identify genes with significant expression changes.
