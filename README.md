@@ -1,4 +1,10 @@
 # GeneStream
+Welcome to **GeneStream**! Here you can:
+- Examine sample metadata to understand dataset variables.
+- Filter and visualize normalized gene counts.
+- Explore differential expression results, including volcano plots.
+- Perform and interpret gene set enrichment analysis (GSEA) to identify enriched pathways.
+
 ## app.R
 This Shiny application, **GeneStream**, provides an integrated workflow for analyzing and visualizing high-throughput gene expression data. It includes multiple tabs for:
 1. Samples: Examine sample metadata, view summary statistics, tables, and histograms to understand the distribution of sample-related variables.
