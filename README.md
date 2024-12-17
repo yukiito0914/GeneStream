@@ -27,7 +27,5 @@ An intuitive interface allows users to preprocess data, apply filters, and gener
 
 <img width="1139" alt="Screenshot 2024-12-16 at 13 56 22" src="https://github.com/user-attachments/assets/c4e1ad91-f0d2-4122-ba84-ec1f7fb57516" />
 
-
-
-
-
+## data
+The .csv files for GeneStream were created by processing the data from [Dr. Adam Labadorf’s paper](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE64810).
