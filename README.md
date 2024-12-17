@@ -23,7 +23,7 @@ This Shiny application provides a comprehensive workflow for processing, analyzi
 3. Differential Expression Analysis (DESeq2): Perform DESeq2-based differential expression analysis. Users can upload raw count matrices and sample metadata, define group comparisons, and generate a results table with log2 fold changes, p-values, and adjusted p-values (padj). Results can be previewed and downloaded.
 4. Gene Set Enrichment Analysis (FGSEA): Perform FGSEA using differential expression results and gene set files in GMT format. Users can rank genes based on DESeq2 statistics (e.g., log2 fold change) and identify enriched pathways. Results, including adjusted p-values, normalized enrichment scores (NES), and leading-edge genes, are available for preview and download.
 
-Through an intuitive interface, ExpressionExplorer allows users to preprocess data, apply filters, and generate key insights with diagnostic plots and enrichment analyses. This app supports seamless uploads, customizable parameters, and downloadable outputs to streamline transcriptomic workflows.
+An intuitive interface allows users to preprocess data, apply filters, and generate key insights with diagnostic plots and enrichment analyses. This app supports seamless uploads, customizable parameters, and downloadable outputs to streamline transcriptomic workflows.
 
 <img width="1139" alt="Screenshot 2024-12-16 at 13 56 22" src="https://github.com/user-attachments/assets/c4e1ad91-f0d2-4122-ba84-ec1f7fb57516" />
 
