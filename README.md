@@ -15,6 +15,8 @@ This Shiny application, **GeneStream**, provides an integrated workflow for anal
 Through an interactive interface, users can explore and summarize their data, apply various filters, and visualize key results in an intuitive manner. The application supports uploading multiple CSV files, adjusting parameters using sliders and dropdowns, and downloading filtered results.
 
 <img width="1470" alt="Screenshot 2024-12-16 at 13 50 07" src="https://github.com/user-attachments/assets/5f0cc6c0-5541-44ee-8010-54cd47e4fb25" />
+<img width="1470" alt="Screenshot 2024-12-22 at 23 45 22" src="https://github.com/user-attachments/assets/1e3f4d76-9b13-47b6-bd34-d534cbe40e05" />
+
 
 ## process_data.R
 This Shiny application provides a comprehensive workflow for processing, analyzing, and visualizing gene expression data. It features the following functionalities:
