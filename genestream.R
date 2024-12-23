@@ -503,13 +503,15 @@ server <- function(input, output, session) {
   # @return A ggplot object representing the volcano plot.
   volcano_plot <- function(dataf, x_name, y_name, slider, color1, color2) {
     out <- dataf %>%
+      # Add a column indicating whether points meet the threshold for significance
       mutate(volc_plot_status  = case_when(
-        is.na(!!sym(y_name)) ~ NA_character_, 
-        !!sym(y_name) < 10**slider ~"TRUE",
-        !!sym(y_name) >= 10**slider ~"FALSE")) %>%
+        is.na(!!sym(y_name)) ~ NA_character_,  # Handle missing values
+        !!sym(y_name) < 10**slider ~"TRUE",  # Below threshold
+        !!sym(y_name) >= 10**slider ~"FALSE")) %>%  # Above or equal to threshold
+      # Create volcano plot
       ggplot(aes(x=!!sym(x_name), y=-log10(!!sym(y_name)), color=volc_plot_status)) +
       geom_point() +
-      scale_color_manual(values=c("TRUE" = color2, "FALSE" = color1), 
+      scale_color_manual(values=c("TRUE" = color2, "FALSE" = color1),  # Define colors for points
                          name=paste0(y_name, " < 1 x 10^", slider)) +
       theme_bw() +
       theme(legend.position = "bottom",
