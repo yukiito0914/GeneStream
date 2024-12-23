@@ -169,13 +169,19 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   # Samples tab
-  
+
+  # Load sample data
   load_sample <- reactive({
     dataf <- read.csv(req(input$sample_info$datapath))
     return(dataf)
   })
   
   # Function to create a table that includes a summary of the type and values in each column
+  #
+  # @param sample_info A data frame containing the sample information to summarize.
+  #
+  # @return A data frame summarizing the columns of `sample_info`, including their name, type (e.g., numeric, character), and either the mean/standard deviation 
+  # (for numeric columns) or the list of unique values (for non-numeric columns). 
   summary_table <- function(sample_info) {
     summary_list <- list()
     for (col in names(sample_info)) {
@@ -208,6 +214,12 @@ server <- function(input, output, session) {
   }
   
   # Function to create histograms of continuous variables
+  #
+  # @param sample_info A data frame containing the sample information to plot.
+  # @param plot_col The name of the column to be plotted on the x-axis. Should contain continuous data.
+  # @param group_col The name of the column to group the histogram by. Should contain categorical data.
+  #
+  # @return A ggplot object representing a histogram of the specified column, grouped and colored by the group column.
   draw_histogram <- function(sample_info, plot_col, group_col){
     sample_hist <- sample_info %>%
       ggplot(aes_string(x = plot_col, fill = group_col)) +
@@ -246,7 +258,8 @@ server <- function(input, output, session) {
   
   
   # Counts tab
-  
+
+  # Load normalized counts data
   load_counts <- reactive({
     dataf <- read.csv(req(input$normalized_count$datapath), stringsAsFactors = FALSE)
     rownames(dataf) <- dataf$GeneID
@@ -262,6 +275,12 @@ server <- function(input, output, session) {
   })
   
   # Function to filter count data
+  #
+  # @param normalized_count A data frame or matrix containing normalized count data (rows represent genes, columns represent samples).
+  # @param var_percentile A numeric value representing the percentile of variance above which genes should be retained (e.g., 90 for the top 10% of variance).
+  # @param non_zero_samples An integer specifying the minimum number of samples where a gene must have non-zero counts to be retained.
+  #
+  # @return A filtered data frame or matrix containing genes that meet the specified variance and non-zero sample criteria.
   filtering <- function(normalized_count, var_percentile, non_zero_samples){
     gene_variances <- apply(normalized_count, 1, var)
     threshold <- quantile(gene_variances, probs = var_percentile / 100)
@@ -277,6 +296,15 @@ server <- function(input, output, session) {
   })
   
   # Function to create a table summarizing the effect of the filtering
+  #
+  # @param normalized_count A data frame or matrix containing the original normalized count data (rows represent genes, columns represent samples).
+  # @param filtered_count A data frame or matrix containing the filtered count data  after applying variance and non-zero sample thresholds.
+  #
+  # @return A data frame summarizing the filtering process, including:
+  # - The number of samples.
+  # - The total number of genes in the original dataset.
+  # - The number and percentage of genes that passed the filtering criteria.
+  # - The number and percentage of genes that did not pass the filtering criteria.
   filtering_table <- function(normalized_count, filtered_count){
     filtering_tbl <- data.frame(
       num_samples = as.integer(ncol(normalized_count)),
@@ -298,6 +326,15 @@ server <- function(input, output, session) {
   })
   
   # Helper function to add metadata
+  #
+  # @param normalized_count A data frame or matrix containing the original normalized count data (rows represent genes, columns represent samples).
+  # @param filtered_count A data frame or matrix containing the filtered count data after applying variance and non-zero sample thresholds.
+  #
+  # @return A data frame containing the original normalized count data with additional metadata columns:
+  # - `Median`: Median value of counts for each gene (row).
+  # - `Variance`: Variance of counts for each gene (row).
+  # - `ZeroCounts`: Number of zero counts for each gene across all samples.
+  # - `Status`: A label indicating whether the gene passed the filtering criteria ("Passed") or was filtered out ("Filtered").
   add_metadata <- function(normalized_count, filtered_count) {
     normalized_count$Median <- apply(normalized_count, 1, median) + 1
     normalized_count$Variance <- apply(normalized_count, 1, var) + 1
@@ -307,6 +344,11 @@ server <- function(input, output, session) {
   }
   
   # Function to create median count vs variance scatter plot
+  #
+  # @param normalized_count A data frame or matrix containing the original normalized count data (rows represent genes, columns represent samples).
+  # @param filtered_count A data frame or matrix containing the filtered count data after applying variance and non-zero sample thresholds.
+  #
+  # @return A ggplot object representing a scatter plot of median count versus variance on a log-log scale, with points colored based on filtering status.
   med_var_plot <- function(normalized_count, filtered_count){
     normalized_count <- add_metadata(normalized_count, filtered_count)
     med_var <- ggplot(normalized_count, aes(x = Median, y = Variance, color = Status)) +
@@ -323,6 +365,11 @@ server <- function(input, output, session) {
   }
   
   # Function to create median count vs number of zeros scatter plot
+  #
+  # @param normalized_count A data frame or matrix containing the original normalized count data (rows represent genes, columns represent samples).
+  # @param filtered_count A data frame or matrix containing the filtered count data after applying variance and non-zero sample thresholds.
+  #
+  # @return A ggplot object representing a scatter plot of median count versus the number of zero counts, with points colored based on filtering status.
   med_zeros_plot <- function(normalized_count, filtered_count){
     normalized_count <- add_metadata(normalized_count, filtered_count)
     med_zeros <- ggplot(normalized_count, aes(x = Median, y = ZeroCounts, color = Status)) +
@@ -348,6 +395,11 @@ server <- function(input, output, session) {
   })
   
   # Function to create a heatmap
+  #
+  # @param filtered_count A data frame or matrix containing the filtered count data (rows represent genes, columns represent samples).
+  # @param log_transform A logical value indicating whether to log-transform the data using a pseudocount. Defaults to `TRUE`.
+  #
+  # @return A heatmap object generated by the `Heatmap` function from the `ComplexHeatmap` package.
   plot_heatmap <- function(filtered_count, log_transform = TRUE){
     filtered_count <- as.matrix(filtered_count)
     if (log_transform) {
@@ -364,6 +416,14 @@ server <- function(input, output, session) {
   })
   
   # Function to perform PCA
+  #
+  # @param filtered_count A data frame or matrix containing the filtered count data (rows represent genes, columns represent samples).
+  # @param scale_data A logical value indicating whether to scale the data before performing PCA. Defaults to `TRUE`. Scaling ensures each variable contributes equally to the PCA.
+  #
+  # @return A list containing:
+  # - `pca`: The PCA object returned by the `prcomp` function.
+  # - `explained_variance`: A numeric vector of the percentage of variance explained by each principal component.
+  # - `pcs`: A data frame of the principal component scores for each sample.
   run_pca <- function(filtered_count, scale_data = TRUE){
     # Remove non-numeric data
     numeric_data <- filtered_count[sapply(filtered_count, is.numeric)]
@@ -388,6 +448,13 @@ server <- function(input, output, session) {
   })
   
   # Function to generate PCA plot
+  #
+  # @param pca_result A list containing PCA results, as returned by the `run_pca` function. Must include `pcs` (principal component scores) and `explained_variance`.
+  # @param x_pc A string specifying the principal component to plot on the x-axis (e.g., "PC1"). Defaults to "PC1".
+  # @param y_pc A string specifying the principal component to plot on the y-axis (e.g., "PC2"). Defaults to "PC2".
+  # @param color_column An optional string specifying the column name in the `pcs` data frame to use for coloring the points. Defaults to `NULL`.
+  #
+  # @return A ggplot object representing a PCA scatter plot, with points projected onto the specified principal components and optionally colored by a group column.
   plot_pca <- function(pca_result, x_pc = "PC1", y_pc = "PC2", color_column = NULL) {
     pcs <- pca_result$pcs
     explained_variance <- pca_result$explained_variance
@@ -412,7 +479,8 @@ server <- function(input, output, session) {
   })
   
   # DE tab
-  
+
+  # Load DE results 
   load_DE <- reactive({
     dataf <- read.csv(req(input$dea_res$datapath), stringsAsFactors = FALSE)
     return(dataf)
@@ -424,6 +492,15 @@ server <- function(input, output, session) {
   })
   
   # Function to generate volcano plot
+  #
+  # @param dataf A data frame containing the data for plotting.
+  # @param x_name A string specifying the column name to plot on the x-axis (e.g., "log2FoldChange").
+  # @param y_name A string specifying the column name to plot on the y-axis (e.g., "pvalue" or "padj").
+  # @param slider A numeric value specifying the threshold (negative power of 10) for y-axis values to be highlighted (e.g., -100 for p-values < 10^-100).
+  # @param color1 A color for points above the threshold (e.g., "#CDC4B5").
+  # @param color2 A color for points below the threshold (e.g., "blue").
+  #
+  # @return A ggplot object representing the volcano plot.
   volcano_plot <- function(dataf, x_name, y_name, slider, color1, color2) {
     out <- dataf %>%
       mutate(volc_plot_status  = case_when(
@@ -444,6 +521,14 @@ server <- function(input, output, session) {
   }
   
   # Function to generate a table including filtered genes based on a selected p-adjusted value threshold
+  #
+  # @param dataf A data frame containing gene expression data, including columns for  "padj" (adjusted p-value) and other relevant statistics.
+  # @param slider A numeric value specifying the threshold (negative power of 10) for the "padj" column to filter genes (e.g., -100 for padj < 10^-100).
+  #
+  # @return A data frame containing filtered genes that meet the p-adjusted value threshold. The table includes formatted columns for readability:
+  # - `baseMean`, `log2FoldChange`, `lfcSE`, and `stat` are formatted to 2 decimal places.
+  # - `pvalue` and `padj` are formatted in scientific notation with 3 decimal places.
+  # The first column is renamed to "gene" for clarity.
   draw_table <- function(dataf, slider) {
     out <- dataf %>%
       filter(padj < 10**slider) %>%
